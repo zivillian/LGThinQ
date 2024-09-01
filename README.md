@@ -1,4 +1,4 @@
-# LG Thinq reverse engineering
+# LG ThinQ reverse engineering
 
 ## My setup
 
