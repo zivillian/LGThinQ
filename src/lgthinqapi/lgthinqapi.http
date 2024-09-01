@@ -1,0 +1,16 @@
+@host_common = common.lgthinq.com
+@host_region = eic-common.lgthinq.com
+
+GET https://{{host_common}}/route
+User-Agent:       IOE Client
+x-service-code:   SVC202
+x-service-phase:  OP
+x-country-code:   DE
+
+###
+
+GET https://{{host_region}}/route/certificate
+
+###
+
+GET https://{{host_region}}/route/certificate?name=common-server
