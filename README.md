@@ -92,5 +92,30 @@ The first request was only send once - all other setup tries skipped the first r
     x-service-code:   SVC202
     x-service-phase:  OP
     x-country-code:   US
+
+    {
+        "resultCode": "0000",
+        "result": {
+            "apiServer": "https://aic-common.lgthinq.com:443",
+            "mqttServer": "ssl://a3phael99lf879.iot.us-west-2.amazonaws.com:8883"
+        }
+    }
     ```
-    If a 404 is returned the request is retried once. If `localhost` is returned as the domain the request is retried twice.
+    If the response format does not match (i.e. a typo in `mqqtServer`) the request is retried.
+1. If the reponse sets the `common-server` endpoint to `https://common.lgthinq.com:443` the next request is:
+    ```http
+    POST https://common.lgthinq.com/device/<GUID>/certificate
+    User-Agent:      IOE Client
+    {
+        "ciphertext": "<base64>",
+        "csr": "-----BEGIN CERTIFICATE REQUEST-----
+                <base64>
+                -----END CERTIFICATE REQUEST-----\n",
+        "otp": "<base64>",
+        "publickey": "-----BEGIN PUBLIC KEY-----
+                      <base64>
+                      -----END PUBLIC KEY-----"
+    }
+
+    <unknown>
+    ```

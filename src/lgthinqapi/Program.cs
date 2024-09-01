@@ -15,8 +15,8 @@ app.MapGet("/route", (HttpRequest request) => Results.Ok(new
 {
     result = new
     {
-        apiServer = "http://localhost:5026",
-        mqqtServer = "mqtt://localhost:1883"
+        apiServer = "https://common.lgthinq.com:443",
+        mqttServer = "mqtt://localhost:1883"
     },
     resultCode = "0000"
 }));
