@@ -1,5 +1,6 @@
 @host_common = common.lgthinq.com
 @host_region = eic-common.lgthinq.com
+@device_guid = 6F24DBBA-B91C-4105-99EA-F47E66AC9D7E
 
 GET https://{{host_common}}/route
 User-Agent:       IOE Client
@@ -14,3 +15,15 @@ GET https://{{host_region}}/route/certificate
 ###
 
 GET https://{{host_region}}/route/certificate?name=common-server
+
+###
+
+POST https://{{host_region}}/device/{{device_guid}}/certificate
+Content-Type:    application/json
+
+{
+  "ciphertext":"qqqq",
+  "csr":"q",
+  "otp":"q",
+  "publickey":"-----BEGIN PUBLIC KEY-----\nqqqq\n-----END PUBLIC KEY-----"
+}

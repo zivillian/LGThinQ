@@ -106,6 +106,7 @@ The first request was only send once - all other setup tries skipped the first r
     ```http
     POST https://common.lgthinq.com/device/<GUID>/certificate
     User-Agent:      IOE Client
+    Content-Type:    application/json
     {
         "ciphertext": "<base64>",
         "csr": "-----BEGIN CERTIFICATE REQUEST-----
@@ -119,3 +120,13 @@ The first request was only send once - all other setup tries skipped the first r
 
     <unknown>
     ```
+
+## Findings
+
+### clip.com
+
+the subject fo the csr is [CN=*.clip.com, O=LGE, C=KR](https://clip.com/)
+
+### the server seems to use python 
+
+the `/device/<GUID>/certificate` endpoint returns the error [Invalid ciphertext: Ciphertext length must be equal to key size.](https://github.com/pyca/cryptography/blob/e343723356e29f22d74516e251c87ed829c59667/src/rust/src/backend/rsa.rs#L322) if the ciphertext parameter does not match the csr or publickey.
