@@ -11,20 +11,15 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.MapGet("/route", (HttpRequest request) =>
+app.MapGet("/route", (HttpRequest request) => Results.Ok(new
 {
-    if (request.Host.Host != "common.lgthinq.com") return Results.NotFound();
-
-    return Results.Ok(new
+    result = new
     {
-        result = new
-        {
-            apiServer = "http://localhost:5026",
-            mqqtServer = "mqtt://localhost:1883"
-        },
-        resultCode = "0000"
-    });
-});
+        apiServer = "http://localhost:5026",
+        mqqtServer = "mqtt://localhost:1883"
+    },
+    resultCode = "0000"
+}));
 
 app.MapGet("/route/certificate", (string? name, HttpContext context) =>
 {

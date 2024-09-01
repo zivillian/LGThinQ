@@ -85,12 +85,12 @@ The first request was only send once - all other setup tries skipped the first r
         "resultCode": "0000"
     }
     ```
-1. when a matching certificate is returned the appliance falls back to the `/route` endpoint, but still uses the known domain
+1. when a matching certificate is returned the appliance falls back to the `/route` endpoint, but still uses the known domain. The country code is taken from the account of the app.
 1. https://eic-common.lgthinq.com/route
     ```http
     GET https://eic-common.lgthinq.com/route
     x-service-code:   SVC202
     x-service-phase:  OP
-    x-country-code:   DE
+    x-country-code:   US
     ```
-    if a 404 is returned the request is retried once.
+    If a 404 is returned the request is retried once. If `localhost` is returned as the domain the request is retried twice.
