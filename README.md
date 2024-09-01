@@ -16,7 +16,7 @@ I've setup an additional VLAN with it's own SSID and a VM with dnsmasq & mitmpro
 
 ### initial connect
 
-The first request was only send once - all other setup tries skipped the first request. All reset procedures I could find did not help. Looks like the device is tied to a region after the initial pairing - even if it failed.
+The first request was only send once - all other setup tries skipped the first request. All reset procedures I could find did not help. Looks like the device is tied to a region domain after the initial pairing - even if it failed. But it looks like the device is shipped with the domain `common.lgthinq.com` and updates its hostname via the `/route` endpoint. Future updates then need to happend at the now known domain.
 
 1. https://common.lgthinq.com/route
     ```http
@@ -85,3 +85,12 @@ The first request was only send once - all other setup tries skipped the first r
         "resultCode": "0000"
     }
     ```
+1. when a matching certificate is returned the appliance falls back to the `/route` endpoint, but still uses the known domain
+1. https://eic-common.lgthinq.com/route
+    ```http
+    GET https://eic-common.lgthinq.com/route
+    x-service-code:   SVC202
+    x-service-phase:  OP
+    x-country-code:   DE
+    ```
+    if a 404 is returned the request is retried once.
