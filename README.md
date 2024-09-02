@@ -120,7 +120,45 @@ The first request was only send once - all other setup tries skipped the first r
 
     <unknown>
     ```
-
+    a. if a `404` is returned the request is retried two times with a 5 second delay
+    a. the `ciphertext`, `csr` and `publickey` is different in each request - `otp` stays the same (for these three requests)
+    a. if relaying to lgthinq
+        i. and the body misses any property the error is `Invalid Body`
+        i. if `csr`, `otp` and `publickey` are set to `"-"` the ciphertext is validated. If it is modified in any way the error is `Invalid ciphertext: Encryption/decryption failed.`
+        i. this means the ciphertext is independent of the other parameters
+    a. `otp` is base64 encoded type-4 UUID
+    a. `GUID` in the URL is a type-1 UUID with an invalid timestamp (3215-05-22)
+    a. the `GUID` is stable, but the `otp` changes for each pairing request
+        i. is the app creating a pairing request in lgthinq and sending the OTP to the device?
+    a. if the request is send to the lgthink servers with `csr` and `publickey` replaced by `-` the response is
+        ```json
+        {
+            "result": {},
+            "resultCode": "0002",
+            "reason": "random number not found for 25 sec"
+        }
+        ```
+    a. if the request (with `csr` and `publickey` replaced by `-`) is send fast enough the response is
+        ```json
+        {
+            "result": {},
+            "resultCode": "0002",
+            "reason": "csrHash: <256bit hex> != 3973e022e93220f9212c18d0d0c543ae7c309e46640da93a4a0314de999f5112"
+        }
+        ```
+        `3973e022e93220f9212c18d0d0c543ae7c309e46640da93a4a0314de999f5112` is the result of `echo -n - | sha256sum`
+        
+        `256bit hex` is the result of `sha256(<expected base64 csr with linebreaks>)`
+        i. either ciphertext contains the csrHash or lgthinq already knows the csrHash and correlates by device GUID / otp / ciphertext
+    a. if the same request (with `csr` and `publickey` replaced by `-`) is send a minute later the response is again `random number not found for 25 sec`
+    a. if it is sent an hour later the response is
+        ```json
+        {
+            "result": {},
+            "resultCode": "0002",
+            "reason": "OTP not found, random number also not found"
+        }
+        ```
 ## Findings
 
 ### clip.com
