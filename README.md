@@ -159,6 +159,13 @@ The first request was only send once - all other setup tries skipped the first r
             "reason": "OTP not found, random number also not found"
         }
         ```
+## 192.168.120.254:5500
+
+- the app talks to this endpoint using TLS 1.2.
+- the device has a self signed certificate for `Internet Widgits Pty Ltd`
+- when connecting with `openssl s_client -connect 192.168.120.254:5500` the device sends `{"cmd": "ping", "type":"request"}`
+- when replying with `enter` or `{"cmd": "ping", "type":"response"}` the connection is closed
+
 ## Findings
 
 ### clip.com
