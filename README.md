@@ -166,6 +166,18 @@ The first request was only send once - all other setup tries skipped the first r
 - when connecting with `openssl s_client -connect 192.168.120.254:5500` the device sends `{"cmd": "ping", "type":"request"}`
 - when replying with `enter` or `{"cmd": "ping", "type":"response"}` the connection is closed
 
+## frida
+
+With [frida](https://github.com/frida/frida) I was able to capture the communication to 192.168.120.254:5500 using:
+
+`frida-trace -U -i SSL_read -i SSL_write -N com.lgeha.nuts`
+
+The scripts are in the frida folder.
+
+The request for the ping response seems to be `{"type":"request","cmd":"pong","data":{"constantConnect":"Y"}}`
+
+`//todo more insights to follow...`
+
 ## Findings
 
 ### clip.com
