@@ -14,11 +14,11 @@ Something listens on 192.168.120.254:5500
 
 ## mitmproxy
 
-I've setup an additional VLAN with it's own SSID and a VM with dnsmasq & mitmproxy. Thus I can control the DNS responses and force all traffic through mitmproxy.
+I've setup an additional VLAN with it's own SSID and a VM with dnsmasq & mitmproxy. Thus I can control the DNS responses and force all traffic from the device through mitmproxy.
 
 ### initial connect
 
-The first request was only send once - all other setup tries skipped the first request. All reset procedures I could find did not help. Looks like the device is tied to a region domain after the initial pairing - even if it failed. But it looks like the device is shipped with the domain `common.lgthinq.com` and updates its hostname via the `/route` endpoint. Future updates then need to happend at the now known domain.
+The first request was only send once - all other setup tries skipped the first request. All reset procedures I could find did not help. Looks like the device is tied to a region domain after the initial pairing - even if it failed. But it looks like the device is shipped with the domain `common.lgthinq.com` and updates its hostname via the `/route` endpoint. Future updates then need to happen at the now known domain.
 
 1. https://common.lgthinq.com/route
     ```http
@@ -178,7 +178,191 @@ The scripts are in the frida folder.
 
 The request for the ping response seems to be `{"type":"request","cmd":"pong","data":{"constantConnect":"Y"}}`
 
-`//todo more insights to follow...`
+The communication between the appliance and the cloud looks like this:
+
+1. request getDeviceInfo
+    ```json
+    {
+        "type": "request",
+        "cmd": "getDeviceInfo",
+        "data": {
+            "subCountryCode": "DE",
+            "regionalCode": "eic",
+            "timezone": "+0100",
+            "publicKey": "-----BEGIN PUBLIC KEY-----\n<base64>\n-----END PUBLIC KEY-----\n",
+            "instantFailReason": "Y",
+            "constantConnect": "Y"
+        }
+    }
+    ```
+
+1. response getDeviceInfo
+    ```json
+    {
+        "type": "response",
+        "cmd": "getDeviceInfo",
+        "data": {
+            "protocolVer": "3.1",
+            "demandType": "RTK_RTL8711am",
+            "mac": "64:cb:e9:XX:XX:XX",
+            "uuid": "<GUID>",
+            "encrypt_val": "<base64>",
+            "deviceType": "201",
+            "modelName": "F_V8_Y___W.B_2QEUK",
+            "softwareVer": "2.10.123",
+            "eepromChecksum": "0",
+            "countryCode": "WW",
+            "modemVer": "clip_hna_v1.9.110",
+            "errorcodeDisplay": "0",
+            "remainingTime": "420",
+            "errorCode": "nS",
+            "errSSID": "intercept-right",   "//":"yep, that's the name of my wifi",
+            "subErrorCode": "NONE",
+            "extra": "CLP_RESET_REASON_WATCHDOG|16124163546601407478|0",
+            "factoryResetCode": "56500",
+            "supportsWpa3": "Y",
+            "agentVer": "0"
+        }
+    }
+    ```
+
+1. request getDeviceInfo
+    seems to be resent - publicKey is identical
+    ```json
+    {
+        "type": "request",
+        "cmd": "getDeviceInfo",
+        "data": {
+            "subCountryCode": "DE",
+            "regionalCode": "eic",
+            "timezone": "+0100",
+            "publicKey": "-----BEGIN PUBLIC KEY-----\n<base64>\n-----END PUBLIC KEY-----\n",
+            "instantFailReason": "Y",
+            "constantConnect": "Y"
+        }
+    }
+    ```
+
+1. response getDeviceInfo
+    ```json
+    {
+        "type": "response",
+        "cmd": "getDeviceInfo",
+        "data": {
+            "protocolVer": "3.1",
+            "demandType": "RTK_RTL8711am",
+            "mac": "64:cb:e9:XX:XX:XX",
+            "uuid": "<GUID>",
+            "encrypt_val": "<base64>",
+            "deviceType": "201",
+            "modelName": "F_V8_Y___W.B_2QEUK",
+            "softwareVer": "2.10.123",
+            "eepromChecksum": "0",
+            "countryCode": "WW",
+            "modemVer": "clip_hna_v1.9.110",
+            "errorcodeDisplay": "0",
+            "remainingTime": "420",
+            "errorCode": "nS",
+            "errSSID": "intercept-right",
+            "subErrorCode": "NONE",
+            "extra": "CLP_RESET_REASON_WATCHDOG|16124163546601407478|0",
+            "factoryResetCode": "57713",
+            "supportsWpa3": "Y",
+            "agentVer": "0"
+        }
+    }
+    ```
+
+1. request setCertInfo
+    ```json
+    {
+        "type": "request",
+        "cmd": "setCertInfo",
+        "data": {
+            "otp": "<base64 encoded uuid>",
+            "svccode": "SVC202",
+            "svcphase": "OP",
+            "constantConnect": "Y"
+        }
+    }
+    ```
+
+1. response setCertInfo
+    ```json
+    {
+        "type": "response",
+        "cmd": "setCertInfo",
+        "data": {
+            "protocolVer": "3.1",
+            "subErrorCode": "NONE",
+            "result": "000"
+        }
+    }
+    ```
+
+1. request setApInfo
+    ```json
+    {
+        "type": "request",
+        "cmd": "setApInfo",
+        "data": {
+            "format": "B64",
+            "ssid": "aW50ZXJjZXB0LWxlZnQ=", "//":"base64 encoded SSID - intercept-left",
+            "security": "WPA2_PSK",
+            "cipher": "AES",
+            "password": "aW50ZXJjZXB0",     "//":"base64 endoded password - intercept",
+            "constantConnect": "Y"
+        }
+    }
+    ```
+
+1. some ping requests and pong responses
+    ```json
+    {
+        "cmd": "ping",
+        "type": "request"
+    }
+    {
+        "type": "request",
+        "cmd": "pong",
+        "data": {
+            "constantConnect": "Y"
+        }
+    }
+    ```
+
+1. response setApInfo
+    ```json
+    {
+        "type": "response",
+        "cmd": "setApInfo",
+        "data": {
+            "result": "999",
+            "rssi": "-65",
+            "protocolVer": "3.1",
+            "subErrorCode": "W017",
+            "errorCode": "nD"
+        }
+    }
+    ```
+
+1. ping / pong
+1. response setApInfo
+    ```json
+    {
+        "type": "response",
+        "cmd": "setApInfo",
+        "data": {
+            "result": "999",
+            "rssi": "-65",
+            "protocolVer": "3.1",
+            "subErrorCode": "W021",
+            "errorCode": "nS"
+        }
+    }
+    ```
+
+1. ping / pong until fail
 
 ## Findings
 
