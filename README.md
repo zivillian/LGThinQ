@@ -4,6 +4,8 @@
 
 I have an LG washing machine `F4WV709P1E.ABWQWDG` with a ThinQ integration. The cloud integration was never used and I'm trying to figure out as much as I can and if possible make it work without letting the machine talk to the cloud.
 
+A few days later I've found https://github.com/anszom/rethink ...
+
 ## WIFI Setup
 
 There is a hotspot named `LG_*_ABCD` the [last four digits are the wifi password](https://www.lg.com/us/support/help-library/lg-washer-troubleshooting-the-wifi-connection--20152621442788) in the form `ABCDABCD`.
